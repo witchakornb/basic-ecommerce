@@ -1,9 +1,9 @@
 package infrastructure
 
 import (
-	"gorm.io/gorm"
 	"github.com/witchakornb/basic-ecommerce/domain/entity"
 	"github.com/witchakornb/basic-ecommerce/domain/repository"
+	"gorm.io/gorm"
 )
 
 type gormUserRepository struct {
@@ -24,7 +24,7 @@ func (r *gormUserRepository) CreateUser(user entity.User) (entity.User, error) {
 }
 
 // GetUserByID retrieves a user by ID from the database.
-func (r *gormUserRepository) GetUserByID(id string) (entity.User, error) {
+func (r *gormUserRepository) GetUserByID(id int) (entity.User, error) {
 	var user entity.User
 	err := r.db.First(&user, id).Error
 	if err != nil {
@@ -43,7 +43,7 @@ func (r *gormUserRepository) UpdateUser(user entity.User) (entity.User, error) {
 }
 
 // DeleteUser deletes a user by ID from the database.
-func (r *gormUserRepository) DeleteUser(id string) error {
+func (r *gormUserRepository) DeleteUser(id int) error {
 	var user entity.User
 	err := r.db.Delete(&user, id).Error
 	if err != nil {

@@ -33,7 +33,7 @@ func main() {
 	// Initialize the repositories
 	userRepo := infradb.NewGormUserRepository(db)
 	productRepo := infradb.NewGormProductRepository(db)
-	orderRepo := infradb.NewGormOderRepository(db)
+	orderRepo := infradb.NewGormOrderRepository(db)
 
 	// Initialize the use cases
 	userUseCase := usecase.NewUserUseCase(userRepo)

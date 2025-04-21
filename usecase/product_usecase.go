@@ -7,10 +7,10 @@ import (
 
 type ProductUseCase interface {
 	CreateProduct(product entity.Product) (entity.Product, error)
-	GetProductByID(id string) (entity.Product, error)
+	GetProductByID(id int) (entity.Product, error)
 	GetAllProducts() ([]entity.Product, error)
 	UpdateProduct(product entity.Product) (entity.Product, error)
-	DeleteProduct(id string) error
+	DeleteProduct(id int) error
 }
 
 type ProductUseCaseImpl struct {
@@ -31,7 +31,7 @@ func (p *ProductUseCaseImpl) CreateProduct(product entity.Product) (entity.Produ
 	return product, nil
 }
 
-func (p *ProductUseCaseImpl) GetProductByID(id string) (entity.Product, error) {
+func (p *ProductUseCaseImpl) GetProductByID(id int) (entity.Product, error) {
 	product, err := p.ProductRepo.GetProductByID(id)
 	if err != nil {
 		return entity.Product{}, err
@@ -55,7 +55,7 @@ func (p *ProductUseCaseImpl) UpdateProduct(product entity.Product) (entity.Produ
 	return product, nil
 }
 
-func (p *ProductUseCaseImpl) DeleteProduct(id string) error {
+func (p *ProductUseCaseImpl) DeleteProduct(id int) error {
 	err := p.ProductRepo.DeleteProduct(id)
 	if err != nil {
 		return err

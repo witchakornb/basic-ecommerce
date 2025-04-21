@@ -2,9 +2,11 @@ package infrastructure
 
 import (
 	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
-	"github.com/witchakornb/basic-ecommerce/usecase"
 	"github.com/witchakornb/basic-ecommerce/domain/entity"
+	"github.com/witchakornb/basic-ecommerce/usecase"
 )
 
 // UserHandler handles HTTP requests related to users
@@ -36,11 +38,16 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdUser)
 }
 
-
 // GetUserByID handles retrieving a user by ID
 func (h *UserHandler) GetUserByID(c *gin.Context) {
 	id := c.Param("id")
-	user, err := h.userUseCase.GetUserByID(id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	user, err := h.userUseCase.GetUserByID(idInt)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -69,7 +76,13 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 // DeleteUser handles deleting a user by ID
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
-	err := h.userUseCase.DeleteUser(id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	err = h.userUseCase.DeleteUser(idInt)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

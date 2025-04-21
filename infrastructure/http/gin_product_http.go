@@ -2,6 +2,8 @@ package infrastructure
 
 import (
 	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/witchakornb/basic-ecommerce/domain/entity"
 	"github.com/witchakornb/basic-ecommerce/usecase"
@@ -39,7 +41,13 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 // GetProductByID handles retrieving a product by ID
 func (h *ProductHandler) GetProductByID(c *gin.Context) {
 	id := c.Param("id")
-	product, err := h.productUseCase.GetProductByID(id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	product, err := h.productUseCase.GetProductByID(idInt)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -79,7 +87,13 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 // DeleteProduct handles deleting a product by ID
 func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 	id := c.Param("id")
-	err := h.productUseCase.DeleteProduct(id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	err = h.productUseCase.DeleteProduct(idInt)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

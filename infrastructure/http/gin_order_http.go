@@ -2,6 +2,8 @@ package infrastructure
 
 import (
 	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/witchakornb/basic-ecommerce/domain/entity"
 	"github.com/witchakornb/basic-ecommerce/usecase"
@@ -9,17 +11,17 @@ import (
 
 // OrderHandler handles HTTP requests related to orders
 type OrderHandler struct {
-	orderUseCase usecase.OrderUseCase
+	orderUseCase    usecase.OrderUseCase
 	productUserCase usecase.ProductUseCase
-	userUsercase usecase.UserUseCase
+	userUsercase    usecase.UserUseCase
 }
 
 // NewOrderHandler creates a new OrderHandler
 func NewOrderHandler(orderUseCase usecase.OrderUseCase, productUserCase usecase.ProductUseCase, userUsercase usecase.UserUseCase) *OrderHandler {
 	return &OrderHandler{
-		orderUseCase: orderUseCase,
+		orderUseCase:    orderUseCase,
 		productUserCase: productUserCase,
-		userUsercase: userUsercase,
+		userUsercase:    userUsercase,
 	}
 }
 
@@ -69,7 +71,13 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 // GetOrderByID handles retrieving an order by ID
 func (h *OrderHandler) GetOrderByID(c *gin.Context) {
 	id := c.Param("id")
-	order, err := h.orderUseCase.GetOrderByID(id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	order, err := h.orderUseCase.GetOrderByID(idInt)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -92,7 +100,13 @@ func (h *OrderHandler) GetAllOrders(c *gin.Context) {
 // DeleteOrder handles deleting an order by ID
 func (h *OrderHandler) DeleteOrder(c *gin.Context) {
 	id := c.Param("id")
-	err := h.orderUseCase.DeleteOrder(id)
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	err = h.orderUseCase.DeleteOrder(idInt)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

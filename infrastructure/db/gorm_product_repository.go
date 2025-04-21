@@ -1,9 +1,9 @@
 package infrastructure
 
 import (
-	"gorm.io/gorm"
 	"github.com/witchakornb/basic-ecommerce/domain/entity"
 	"github.com/witchakornb/basic-ecommerce/domain/repository"
+	"gorm.io/gorm"
 )
 
 // GormProductRepository is a GORM implementation of the ProductRepository interface.
@@ -26,7 +26,7 @@ func (r *GormProductRepository) CreateProduct(product entity.Product) (entity.Pr
 }
 
 // GetProductByID retrieves a product by ID from the database.
-func (r *GormProductRepository) GetProductByID(id string) (entity.Product, error) {
+func (r *GormProductRepository) GetProductByID(id int) (entity.Product, error) {
 	var product entity.Product
 	err := r.db.First(&product, id).Error
 	if err != nil {
@@ -55,7 +55,7 @@ func (r *GormProductRepository) UpdateProduct(product entity.Product) (entity.Pr
 }
 
 // DeleteProduct deletes a product by ID from the database.
-func (r *GormProductRepository) DeleteProduct(id string) error {
+func (r *GormProductRepository) DeleteProduct(id int) error {
 	var product entity.Product
 	err := r.db.Delete(&product, id).Error
 	if err != nil {

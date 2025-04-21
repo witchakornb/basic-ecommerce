@@ -1,23 +1,23 @@
 package infrastructure
 
 import (
-	"gorm.io/gorm"
 	"github.com/witchakornb/basic-ecommerce/domain/entity"
 	"github.com/witchakornb/basic-ecommerce/domain/repository"
+	"gorm.io/gorm"
 )
 
-// GormUserRepository is a struct that implements the UserRepository interface
-type GormUserRepository struct {
+// GormOrderRepository is a struct that implements the OrderRepository interface
+type GormOrderRepository struct {
 	db *gorm.DB
 }
 
-// NewGormOderRepository creates a new instance of GormUserRepository
-func NewGormOderRepository(db *gorm.DB) repository.OrderRepository {
-	return &GormUserRepository{db: db}
+// NewGormOrderRepository creates a new instance of GormOrderRepository
+func NewGormOrderRepository(db *gorm.DB) repository.OrderRepository {
+	return &GormOrderRepository{db: db}
 }
 
 // CreateOrder creates a new order in the database
-func (r *GormUserRepository) CreateOrder(order entity.Order) (entity.Order, error) {
+func (r *GormOrderRepository) CreateOrder(order entity.Order) (entity.Order, error) {
 	err := r.db.Create(&order).Error
 	if err != nil {
 		return entity.Order{}, err
@@ -26,7 +26,7 @@ func (r *GormUserRepository) CreateOrder(order entity.Order) (entity.Order, erro
 }
 
 // GetOrderByID retrieves an order by ID from the database
-func (r *GormUserRepository) GetOrderByID(id string) (entity.Order, error) {
+func (r *GormOrderRepository) GetOrderByID(id int) (entity.Order, error) {
 	var order entity.Order
 	err := r.db.First(&order, id).Error
 	if err != nil {
@@ -36,17 +36,17 @@ func (r *GormUserRepository) GetOrderByID(id string) (entity.Order, error) {
 }
 
 // GetAllOrders retrieves all orders from the database
-func (r *GormUserRepository) GetAllOrders() ([]entity.Order, error) {
+func (r *GormOrderRepository) GetAllOrders() ([]entity.Order, error) {
 	var orders []entity.Order
 	err := r.db.Find(&orders).Error
 	if err != nil {
 		return nil, err
 	}
 	return orders, nil
-}	
+}
 
 // DeleteOrder deletes an order by ID from the database
-func (r *GormUserRepository) DeleteOrder(id string) error {
+func (r *GormOrderRepository) DeleteOrder(id int) error {
 	var order entity.Order
 	err := r.db.Delete(&order, id).Error
 	if err != nil {

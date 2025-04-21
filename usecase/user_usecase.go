@@ -7,9 +7,9 @@ import (
 
 type UserUseCase interface {
 	CreateUser(user entity.User) (entity.User, error)
-	GetUserByID(id string) (entity.User, error)
+	GetUserByID(id int) (entity.User, error)
 	UpdateUser(user entity.User) (entity.User, error)
-	DeleteUser(id string) error
+	DeleteUser(id int) error
 }
 
 type UserUseCaseImpl struct {
@@ -30,7 +30,7 @@ func (u *UserUseCaseImpl) CreateUser(user entity.User) (entity.User, error) {
 	return user, nil
 }
 
-func (u *UserUseCaseImpl) GetUserByID(id string) (entity.User, error) {
+func (u *UserUseCaseImpl) GetUserByID(id int) (entity.User, error) {
 	user, err := u.UserRepo.GetUserByID(id)
 	if err != nil {
 		return entity.User{}, err
@@ -46,7 +46,7 @@ func (u *UserUseCaseImpl) UpdateUser(user entity.User) (entity.User, error) {
 	return user, nil
 }
 
-func (u *UserUseCaseImpl) DeleteUser(id string) error {
+func (u *UserUseCaseImpl) DeleteUser(id int) error {
 	err := u.UserRepo.DeleteUser(id)
 	if err != nil {
 		return err

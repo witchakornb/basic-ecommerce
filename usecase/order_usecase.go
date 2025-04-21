@@ -9,9 +9,9 @@ import (
 
 type OrderUseCase interface {
 	CreateOrder(order entity.Order) (entity.Order, error)
-	GetOrderByID(id string) (entity.Order, error)
+	GetOrderByID(id int) (entity.Order, error)
 	GetAllOrders() ([]entity.Order, error)
-	DeleteOrder(id string) error
+	DeleteOrder(id int) error
 }
 
 type OrderUseCaseImpl struct {
@@ -31,7 +31,7 @@ func NewOrderUseCase(orderRepo repository.OrderRepository, userRepo repository.U
 func (o *OrderUseCaseImpl) CreateOrder(order entity.Order) (entity.Order, error) {
 	// Check if user exists
 	user, err := o.UserRepo.GetUserByID(order.CustomerID)
-	if err != nil || user.ID == "" {
+	if err != nil || user.ID == 0 {
 		return entity.Order{}, errors.New("user not found")
 	}
 
@@ -62,7 +62,7 @@ func (o *OrderUseCaseImpl) CreateOrder(order entity.Order) (entity.Order, error)
 	return order, nil
 }
 
-func (o *OrderUseCaseImpl) GetOrderByID(id string) (entity.Order, error) {
+func (o *OrderUseCaseImpl) GetOrderByID(id int) (entity.Order, error) {
 	order, err := o.OrderRepo.GetOrderByID(id)
 	if err != nil {
 		return entity.Order{}, errors.New("order not found")
@@ -80,7 +80,7 @@ func (o *OrderUseCaseImpl) GetAllOrders() ([]entity.Order, error) {
 	return orders, nil
 }
 
-func (o *OrderUseCaseImpl) DeleteOrder(id string) error {
+func (o *OrderUseCaseImpl) DeleteOrder(id int) error {
 	err := o.OrderRepo.DeleteOrder(id)
 	if err != nil {
 		return errors.New("failed to delete order")
