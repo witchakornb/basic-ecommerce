@@ -1,6 +1,6 @@
 {
   "name": "Go Basic E-commerce",
-  "image": "mcr.microsoft.com/devcontainers/go:1-1.22-bookworm", // Using a common Go image that includes 1.22
+  "image": "mcr.microsoft.com/devcontainers/go:1.22.12-bookworm", // Using a common Go image that includes 1.22
   "features": {
     "ghcr.io/devcontainers/features/go:1": {
       "version": "1.22" // Explicitly setting Go version for the feature as well
