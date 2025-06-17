@@ -1,0 +1,30 @@
+{
+  "name": "Go Basic E-commerce",
+  "image": "mcr.microsoft.com/devcontainers/go:1-1.22-bookworm", // Using a common Go image that includes 1.22
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.22" // Explicitly setting Go version for the feature as well
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "go.toolsManagement.autoUpdate": true,
+        "go.useLanguageServer": true,
+        "go.goroot": "/usr/local/go", // Typical Go root in these containers
+        "go.gopath": "/go" // Typical Go path
+      },
+      "extensions": [
+        "golang.Go",
+        "ms-azuretools.vscode-docker",
+        "github.codespaces",
+        "ms-vscode.makefile-tools" // If you use Makefiles
+      ]
+    }
+  },
+  "forwardPorts": [
+    8080 // Forward the application port
+  ],
+  "postCreateCommand": "go mod download", // Download dependencies after container creation
+  "remoteUser": "vscode" // Or "root" if you need root privileges by default
+}
