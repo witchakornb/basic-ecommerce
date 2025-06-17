@@ -14,77 +14,90 @@ type OrderUseCase interface {
 	DeleteOrder(id int) error
 }
 
+// OrderUseCaseImpl is the implementation of OrderUseCase
 type OrderUseCaseImpl struct {
-	OrderRepo   repository.OrderRepository
-	UserRepo    repository.UserRepository
-	ProductRepo repository.ProductRepository
+	uow repository.UnitOfWork // เปลี่ยนจาก repo แต่ละตัวมาเป็น UoW
 }
 
-func NewOrderUseCase(orderRepo repository.OrderRepository, userRepo repository.UserRepository, productRepo repository.ProductRepository) OrderUseCase {
+// NewOrderUseCase creates a new OrderUseCase
+func NewOrderUseCase(uow repository.UnitOfWork) OrderUseCase {
 	return &OrderUseCaseImpl{
-		OrderRepo:   orderRepo,
-		UserRepo:    userRepo,
-		ProductRepo: productRepo,
+		uow: uow,
 	}
 }
 
-func (o *OrderUseCaseImpl) CreateOrder(order entity.Order) (entity.Order, error) {
-	// Check if user exists
-	user, err := o.UserRepo.GetUserByID(order.CustomerID)
-	if err != nil || user.ID == 0 {
-		return entity.Order{}, errors.New("user not found")
-	}
+func (o *OrderUseCaseImpl) CreateOrder(order entity.Order) (createdOrder entity.Order, err error) { // Modified return to named
+	err = o.uow.Execute(func(store repository.UnitOfWorkStore) error {
+		// 1. Get repositories from the store
+		userRepo := store.Users()
+		productRepo := store.Products()
+		orderRepo := store.Orders()
 
-	// Check if product exists
-	product, err := o.ProductRepo.GetProductByID(order.ProductID)
-	if err != nil {
-		return entity.Order{}, errors.New("product not found")
-	}
+		// 2. Check if user exists
+		user, err := userRepo.GetUserByID(order.CustomerID)
+		if err != nil || user.ID == 0 {
+			return errors.New("user not found")
+		}
 
-	// Check if product is in stock
-	if product.Stock < order.Quantity {
-		return entity.Order{}, errors.New("not enough stock")
-	}
+		// 3. Check if product exists
+		product, err := productRepo.GetProductByID(order.ProductID)
+		if err != nil {
+			return errors.New("product not found")
+		}
 
-	// Update product stock
-	product.Stock -= order.Quantity
-	_, err = o.ProductRepo.UpdateProduct(product)
-	if err != nil {
-		return entity.Order{}, errors.New("failed to update product stock")
-	}
+		// 4. Check if product is in stock
+		if product.Stock < order.Quantity {
+			return errors.New("not enough stock")
+		}
 
-	// Create order
-	order, err = o.OrderRepo.CreateOrder(order)
-	if err != nil {
-		return entity.Order{}, err
-	}
+		// 5. Update product stock (within transaction)
+		product.Stock -= order.Quantity
+		_, err = productRepo.UpdateProduct(product)
+		if err != nil {
+			return errors.New("failed to update product stock")
+		}
 
-	return order, nil
+		// 6. Create order (within transaction)
+		createdOrder, err = orderRepo.CreateOrder(order)
+		if err != nil {
+			return err
+		}
+
+		return nil // No error, transaction will be committed
+	})
+
+	return createdOrder, err
 }
 
-func (o *OrderUseCaseImpl) GetOrderByID(id int) (entity.Order, error) {
-	order, err := o.OrderRepo.GetOrderByID(id)
-	if err != nil {
-		return entity.Order{}, errors.New("order not found")
-	}
+// ----- (Optional but recommended) Update other methods to use UoW as well -----
 
-	return order, nil
+func (o *OrderUseCaseImpl) GetOrderByID(id int) (order entity.Order, err error) { // Modified return to named
+	err = o.uow.Execute(func(store repository.UnitOfWorkStore) error {
+		var err error
+		order, err = store.Orders().GetOrderByID(id)
+		if err != nil {
+			return errors.New("order not found")
+		}
+		return nil
+	})
+	return order, err
 }
 
-func (o *OrderUseCaseImpl) GetAllOrders() ([]entity.Order, error) {
-	orders, err := o.OrderRepo.GetAllOrders()
-	if err != nil {
-		return nil, err
-	}
-
-	return orders, nil
+func (o *OrderUseCaseImpl) GetAllOrders() (orders []entity.Order, err error) { // Modified return to named
+	err = o.uow.Execute(func(store repository.UnitOfWorkStore) error {
+		var err error
+		orders, err = store.Orders().GetAllOrders()
+		return err
+	})
+	return orders, err
 }
 
 func (o *OrderUseCaseImpl) DeleteOrder(id int) error {
-	err := o.OrderRepo.DeleteOrder(id)
-	if err != nil {
-		return errors.New("failed to delete order")
-	}
-
-	return nil
+	return o.uow.Execute(func(store repository.UnitOfWorkStore) error {
+		err := store.Orders().DeleteOrder(id)
+		if err != nil {
+			return errors.New("failed to delete order")
+		}
+		return nil
+	})
 }
